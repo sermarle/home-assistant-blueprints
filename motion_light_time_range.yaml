@@ -1,6 +1,6 @@
 blueprint:
   name: Activar dispositivo por movimiento con ajuste
-  description: Este blueprint enciende un dispositivo (luz, interruptor, etc.) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
+  description: Este blueprint enciende un dispositivo (luz, interruptor, booleano) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
   domain: automation
   input:
     motion_entity:
@@ -21,15 +21,7 @@ blueprint:
               - switch
               - input_boolean
 
-    no_motion_wait:
-      name: Tiempo de espera sin movimiento
-      description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
-      default: 2
-      selector:
-        number:
-          min: 0
-          max: 120
-          unit_of_measurement: minutes
+
 
     sunset_offset:
       name: Offset para encender el dispositivo
@@ -46,6 +38,17 @@ blueprint:
       description: Hora en la que dejará de ejecutarse la automatización
       selector:
         time:
+
+        
+    no_motion_wait:
+      name: Tiempo de espera sin movimiento
+      description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
+      default: 2
+      selector:
+        number:
+          min: 0
+          max: 120
+          unit_of_measurement: minutes
 
 trigger:
   platform: state
