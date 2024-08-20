@@ -61,7 +61,7 @@ condition:
     after: sunset
     after_offset: >
       {% set minutes = sunset_offset | int %}
-      {{ '%02d:%02d:00' | format(minutes // 60, minutes % 60) }}
+      {{ minutes | | timestamp_custom("%M:%S") }}
 
     
   - condition: time
