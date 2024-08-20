@@ -72,7 +72,7 @@ trigger:
 condition:
   - condition: template
     value_template: >
-      {{ (as_timestamp(state_attr('sun.sun', 'next_dusk')) + (60 * !input offset_minutes)) | timestamp_custom('%H:%M', True) <= now().strftime('%H:%M') }}
+      {{ (as_timestamp(state_attr('sun.sun', 'next_dusk')) + (60 * (offset_minutes | int))) | timestamp_custom('%H:%M', True) <= now().strftime('%H:%M') }}
   - condition: time
     before: !input end_time
 
