@@ -63,7 +63,7 @@ condition:
   - condition: time
     before: !input end_time
   - condition: state
-    entity_id: switch.10010ee3b4
+    entity_id: !input target_device
     state: "off"
 
 action:
