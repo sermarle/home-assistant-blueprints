@@ -1,6 +1,6 @@
 blueprint:
-  name: Encender luces por movimiento dentro de un rango horario
-  description: Este blueprint enciende las luces seleccionadas cuando se detecta movimiento en un sensor especificado, siempre que el evento ocurra dentro de un rango de horas determinado.
+  name: Activar dispositivo por movimiento dentro de un rango horario
+  description: Este blueprint enciende una luz, un booleano o un switch seleccionado cuando se detecta movimiento en un sensor especificado, siempre que el evento ocurra dentro de un rango de horas determinado.
   domain: automation
   input:
     motion_sensor:
@@ -11,13 +11,16 @@ blueprint:
           domain: binary_sensor
           device_class: motion
           
-    light_target:
-      name: Luz para encender
-      description: Selecciona la luz que se encenderá cuando se detecte movimiento
+    target_device:
+      name: Dispositivo para activar
+      description: Selecciona el dispositivo que se activará cuando se detecte movimiento
       selector:
         target:
           entity:
-            domain: light
+            domain: 
+              - light
+              - switch
+              - input_boolean
             
     start_time:
       name: Hora de inicio
@@ -42,8 +45,8 @@ condition:
     before: !input end_time
 
 action:
-  - service: light.turn_on
-    target: !input light_target
-  - delay: '00:05:00'  # Mantiene las luces encendidas por 5 minutos
-  - service: light.turn_off
-    target: !input light_target
+  - service: homeassistant.turn_on
+    target: !input target_device
+  - delay: '00:05:00'  # Mantiene el dispositivo activado por 5 minutos
+  - service: homeassistant.turn_off
+    target: !input target_device
