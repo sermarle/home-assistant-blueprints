@@ -56,7 +56,7 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: "{{ !input sunset_offset | int * 60 }}"
+    after_offset: "{{ sunset_offset | int * 60 }}"
   - condition: time
     before: !input end_time
 
