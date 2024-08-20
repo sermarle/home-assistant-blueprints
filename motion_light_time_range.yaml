@@ -55,7 +55,7 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: "{{ '-00:%02d:00' | format(!input sunset_offset) }}"
+    after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
 
