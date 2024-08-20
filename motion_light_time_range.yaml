@@ -24,21 +24,21 @@ blueprint:
     no_motion_wait:
       name: Tiempo de espera sin movimiento
       description: Tiempo para mantener el dispositivo encendido después del último movimiento detectado.
-      default: 120
+      default: 2
       selector:
         number:
           min: 0
-          max: 3600
+          max: 120
           unit_of_measurement: minutes
 
     dusk_offset:
       name: Offset para encender el dispositivo
       description: Define el offset en minutos relativo al crepúsculo (dusk)
-      default: 60
+      default: 0
       selector:
         number:
-          min: 0
-          max: 240
+          min: -120
+          max: 120
           unit_of_measurement: minutes
 
     end_time:
