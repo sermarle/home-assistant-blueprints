@@ -23,7 +23,7 @@ blueprint:
 
     no_motion_wait:
       name: Tiempo de espera sin movimiento
-      description: Tiempo para mantener el dispositivo encendido después del último movimiento detectado.
+      description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
       default: 2
       selector:
         number:
@@ -63,6 +63,7 @@ condition:
 action:
   - service: homeassistant.turn_on
     target: !input target_device
-  - delay: !input no_motion_wait
+  - delay:
+      minutes: !input no_motion_wait
   - service: homeassistant.turn_off
     target: !input target_device
