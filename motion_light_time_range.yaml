@@ -1,84 +1,109 @@
 blueprint:
-  name: Activar dispositivo por movimiento con ajuste de tiempo relativo al crepúsculo
-  description: Este blueprint enciende un dispositivo (luz, booleano o switch) cuando se detecta movimiento en un sensor especificado. La automatización se activa a partir de un tiempo relativo al crepúsculo (dusk), calculado dinámicamente, y se apaga después de un tiempo especificado.
+  name: Activar dispositivo por movimiento con ajuste solar
+  description: Enciende un interruptor y/o luz cuando se detecta movimiento, con ajustes relativos al amanecer y atardecer.
   domain: automation
   input:
-    motion_sensor:
+    motion_entity:
       name: Sensor de Movimiento
-      description: Selecciona el sensor de movimiento que activará la automatización
       selector:
         entity:
           domain: binary_sensor
           device_class: motion
-
-    target_device:
-      name: Dispositivo para activar
-      description: Selecciona el dispositivo que se activará cuando se detecte movimiento
+    switch_target:
+      name: Interruptor
+      default: {}
       selector:
         target:
           entity:
-            domain:
-              - light
-              - switch
-              - input_boolean
-
-    offset_minutes:
-      name: Minutos de ajuste respecto al crepúsculo (dusk)
-      description: Ajuste de minutos antes (negativo) o después (positivo) del crepúsculo para determinar la hora de inicio
+            domain: switch
+    light_target:
+      name: Luz
+      default: {}
       selector:
-        number:
-          min: -120
-          max: 120
-          unit_of_measurement: minutes
-
-    end_time:
-      name: Hora de fin
-      description: Hora en la que dejará de ejecutarse la automatización
-      selector:
-        time:
-
-    duration_hours:
-      name: Horas de duración
-      description: Cantidad de horas que el dispositivo permanecerá encendido
+        target:
+          entity:
+            domain: light
+    no_motion_wait:
+      name: Tiempo de espera sin movimiento
+      description: Tiempo para mantener el dispositivo encendido después del último movimiento detectado.
+      default: 120
       selector:
         number:
           min: 0
-          max: 23
-          unit_of_measurement: hours
-
-    duration_minutes:
-      name: Minutos de duración
-      description: Cantidad de minutos que el dispositivo permanecerá encendido
-      selector:
-        number:
-          min: 0
-          max: 59
-          unit_of_measurement: minutes
-
-    duration_seconds:
-      name: Segundos de duración
-      description: Cantidad de segundos que el dispositivo permanecerá encendido
-      selector:
-        number:
-          min: 0
-          max: 59
+          max: 3600
           unit_of_measurement: seconds
+    sunset_offset:
+      name: Offset para encender las luces
+      description: Definir el offset relativo al atardecer
+      default: 60
+      selector:
+        number:
+          min: 0
+          max: 240
+          unit_of_measurement: minutes
+    sunrise_offset:
+      name: Offset para apagar las luces
+      description: Definir el offset relativo al amanecer
+      default: 45
+      selector:
+        number:
+          min: 0
+          max: 240
+          unit_of_measurement: minutes
 
 trigger:
-  - platform: template
-    value_template: >
-      {{ now() >= (state_attr('sun.sun', 'next_dusk') | as_datetime + timedelta(minutes = !input offset_minutes | int)) }}
+  platform: state
+  entity_id: !input motion_entity
+  from: "off"
+  to: "on"
 
 condition:
-  - condition: time
-    before: !input end_time
+  - condition: or
+    conditions:
+      - condition: sun
+        after: sunset
+        after_offset: !input sunset_offset
+      - condition: sun
+        before: sunrise
+        before_offset: !input sunrise_offset
 
 action:
-  - service: homeassistant.turn_on
-    target: !input target_device
-  - delay:
-      hours: !input duration_hours
-      minutes: !input duration_minutes
-      seconds: !input duration_seconds
-  - service: homeassistant.turn_off
-    target: !input target_device
+  - choose:
+      - conditions: "{{ light_target|length > 0 and switch_target|length > 0 }}"
+        sequence:
+          - service: switch.turn_on
+            target: !input switch_target
+          - service: light.turn_on
+            target: !input light_target
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input motion_entity
+                to: 'off'
+          - delay: !input no_motion_wait
+          - service: switch.turn_off
+            target: !input switch_target
+          - service: light.turn_off
+            target: !input light_target
+      - conditions: "{{ switch_target|length > 0 }}"
+        sequence:
+          - service: switch.turn_on
+            target: !input switch_target
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input motion_entity
+                to: 'off'
+          - delay: !input no_motion_wait
+          - service: switch.turn_off
+            target: !input switch_target
+      - conditions: "{{ light_target|length > 0 }}"
+        sequence:
+          - service: light.turn_on
+            target: !input light_target
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input motion_entity
+                to: 'off'
+          - delay: !input no_motion_wait
+          - service: light.turn_off
+            target: !input light_target
+    default: []
