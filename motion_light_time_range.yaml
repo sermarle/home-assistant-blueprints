@@ -1,6 +1,6 @@
 blueprint:
-  name: Activar dispositivo por movimiento al crepúsculo dentro de un rango horario
-  description: Este blueprint enciende una luz, un booleano o un switch seleccionado cuando se detecta movimiento en un sensor especificado. La automatización se activa a partir de un tiempo relativo al crepúsculo (dusk), y se apaga después de un tiempo especificado en horas, minutos y segundos.
+  name: Activar dispositivo por movimiento con ajuste de tiempo relativo al crepúsculo
+  description: Este blueprint enciende un dispositivo (luz, booleano o switch) cuando se detecta movimiento en un sensor especificado. La automatización se activa a partir de un tiempo relativo al crepúsculo (dusk), calculado dinámicamente, y se apaga después de un tiempo especificado.
   domain: automation
   input:
     motion_sensor:
@@ -10,14 +10,14 @@ blueprint:
         entity:
           domain: binary_sensor
           device_class: motion
-          
+
     target_device:
       name: Dispositivo para activar
       description: Selecciona el dispositivo que se activará cuando se detecte movimiento
       selector:
         target:
           entity:
-            domain: 
+            domain:
               - light
               - switch
               - input_boolean
@@ -30,13 +30,13 @@ blueprint:
           min: -120
           max: 120
           unit_of_measurement: minutes
-    
+
     end_time:
       name: Hora de fin
       description: Hora en la que dejará de ejecutarse la automatización
       selector:
         time:
-    
+
     duration_hours:
       name: Horas de duración
       description: Cantidad de horas que el dispositivo permanecerá encendido
@@ -65,16 +65,11 @@ blueprint:
           unit_of_measurement: seconds
 
 trigger:
-  - platform: state
-    entity_id: !input motion_sensor
-    to: 'on'
+  - platform: template
+    value_template: >
+      {{ now() >= (state_attr('sun.sun', 'next_dusk') | as_datetime + timedelta(minutes = !input offset_minutes | int)) }}
 
 condition:
-  - condition: template
-    value_template: >
-      {% set dusk_time = as_timestamp(state_attr('sun.sun', 'next_dusk')) %}
-      {% set offset_time = dusk_time + (60 * offset_minutes) %}
-      {{ now().timestamp() >= offset_time }}
   - condition: time
     before: !input end_time
 
