@@ -65,20 +65,17 @@ blueprint:
           unit_of_measurement: seconds
 
 trigger:
-  platform: state
-  entity_id: !input motion_sensor
-  from: "off"
-  to: "on"
+  - platform: state
+    entity_id: !input motion_sensor
+    from: "off"
+    to: "on"
 
 condition:
-  - condition: or
-    conditions:
-      - condition: sun
-        after: sunset
-        after_offset: "{{ timedelta(minutes = !input offset_minutes) }}"
-      - condition: sun
-        before: sunrise
-        before_offset: "{{ timedelta(minutes = !input offset_minutes) }}"
+  - condition: sun
+    after: sunset
+    after_offset: "{{ states('input_number.offset_minutes') | int }}"
+  - condition: time
+    before: !input end_time
 
 action:
   - service: homeassistant.turn_on
