@@ -21,8 +21,6 @@ blueprint:
               - switch
               - input_boolean
 
-
-
     sunset_offset:
       name: Offset para encender el dispositivo
       description: Define el offset en minutos relativo al atardecer (sunset)
@@ -39,7 +37,6 @@ blueprint:
       selector:
         time:
 
-        
     no_motion_wait:
       name: Tiempo de espera sin movimiento
       description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
@@ -62,6 +59,9 @@ condition:
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
+  - condition: state
+    entity_id: !input target_device
+    state: "off"
 
 action:
   - service: homeassistant.turn_on
