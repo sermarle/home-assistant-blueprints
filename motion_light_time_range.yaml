@@ -73,7 +73,7 @@ condition:
   - condition: template
     value_template: >
       {% set dusk_time = as_timestamp(state_attr('sun.sun', 'next_dusk')) %}
-      {% set offset_time = dusk_time + (60 * ( !input offset_minutes | int)) %}
+      {% set offset_time = dusk_time + (60 * (input_number.offset_minutes | int)) %}
       {{ now().timestamp() >= offset_time }}
   - condition: time
     before: !input end_time
