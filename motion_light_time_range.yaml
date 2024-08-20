@@ -29,7 +29,7 @@ blueprint:
         number:
           min: 0
           max: 3600
-          unit_of_measurement: seconds
+          unit_of_measurement: minutes
 
     dusk_offset:
       name: Offset para encender el dispositivo
