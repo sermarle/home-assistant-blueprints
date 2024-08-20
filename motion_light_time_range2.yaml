@@ -59,7 +59,11 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: sunset_offset
+    after_offset: >
+      {% set minutes = sunset_offset | int %}
+      {{ '%02d:%02d:00' | format(minutes // 60, minutes % 60) }}
+
+    
   - condition: time
     before: !input end_time
 
