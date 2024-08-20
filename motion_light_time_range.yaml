@@ -54,9 +54,10 @@ trigger:
   to: "on"
 
 condition:
-  - condition: sun
-    after: dusk
-    after_offset: !input dusk_offset
+  - condition: template
+    value_template: >
+      {% set dusk_time = as_timestamp(state_attr('sun.sun', 'next_dusk')) + (60 * !input dusk_offset) %}
+      {{ now().timestamp() >= dusk_time }}
   - condition: time
     before: !input end_time
 
