@@ -1,6 +1,6 @@
 blueprint:
   name: Activar dispositivo por movimiento dentro de un rango horario
-  description: Este blueprint enciende una luz, un booleano o un switch seleccionado cuando se detecta movimiento en un sensor especificado, siempre que el evento ocurra dentro de un rango de horas determinado.
+  description: Este blueprint enciende una luz, un booleano o un switch seleccionado cuando se detecta movimiento en un sensor especificado, siempre que el evento ocurra dentro de un rango de horas determinado, y lo apaga después de un tiempo especificado en horas, minutos y segundos.
   domain: automation
   input:
     motion_sensor:
@@ -33,6 +33,33 @@ blueprint:
       description: Hora en la que dejará de ejecutarse la automatización
       selector:
         time:
+    
+    duration_hours:
+      name: Horas de duración
+      description: Cantidad de horas que el dispositivo permanecerá encendido
+      selector:
+        number:
+          min: 0
+          max: 23
+          unit_of_measurement: hours
+
+    duration_minutes:
+      name: Minutos de duración
+      description: Cantidad de minutos que el dispositivo permanecerá encendido
+      selector:
+        number:
+          min: 0
+          max: 59
+          unit_of_measurement: minutes
+
+    duration_seconds:
+      name: Segundos de duración
+      description: Cantidad de segundos que el dispositivo permanecerá encendido
+      selector:
+        number:
+          min: 0
+          max: 59
+          unit_of_measurement: seconds
 
 trigger:
   - platform: state
@@ -47,6 +74,9 @@ condition:
 action:
   - service: homeassistant.turn_on
     target: !input target_device
-  - delay: '00:05:00'  # Mantiene el dispositivo activado por 5 minutos
+  - delay:
+      hours: !input duration_hours
+      minutes: !input duration_minutes
+      seconds: !input duration_seconds
   - service: homeassistant.turn_off
     target: !input target_device
