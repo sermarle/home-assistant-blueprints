@@ -1,6 +1,6 @@
 blueprint:
-  name: Activar dispositivo por movimiento al atardecer dentro de un rango horario
-  description: Este blueprint enciende una luz, un booleano o un switch seleccionado cuando se detecta movimiento en un sensor especificado. La automatización se activa a partir de un tiempo relativo a la puesta de sol, y se apaga después de un tiempo especificado en horas, minutos y segundos.
+  name: Activar dispositivo por movimiento al crepúsculo dentro de un rango horario
+  description: Este blueprint enciende una luz, un booleano o un switch seleccionado cuando se detecta movimiento en un sensor especificado. La automatización se activa a partir de un tiempo relativo al crepúsculo (dusk), y se apaga después de un tiempo especificado en horas, minutos y segundos.
   domain: automation
   input:
     motion_sensor:
@@ -23,8 +23,8 @@ blueprint:
               - input_boolean
 
     offset_minutes:
-      name: Minutos de ajuste respecto a la puesta de sol
-      description: Ajuste de minutos antes (negativo) o después (positivo) de la puesta de sol para determinar la hora de inicio
+      name: Minutos de ajuste respecto al crepúsculo
+      description: Ajuste de minutos antes (negativo) o después (positivo) del crepúsculo para determinar la hora de inicio
       selector:
         number:
           min: -120
@@ -72,7 +72,7 @@ trigger:
 condition:
   - condition: sun
     after_offset: !input offset_minutes
-    after: sunset
+    after: dusk
   - condition: time
     before: !input end_time
 
