@@ -59,11 +59,7 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: >
-      {% set minutes = sunset_offset | int %}
-      {{ minutes | timestamp_custom("%H:%M:%S") }}
-
-    
+    after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
 
