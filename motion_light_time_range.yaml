@@ -21,34 +21,14 @@ blueprint:
               - switch
               - input_boolean
 
-    no_motion_hours:
-      name: Horas de espera sin movimiento
-      description: Cantidad de horas para mantener el dispositivo encendido después del último movimiento detectado.
-      default: 0
+    no_motion_wait:
+      name: Tiempo de espera sin movimiento
+      description: Tiempo para mantener el dispositivo encendido después del último movimiento detectado.
+      default: 120
       selector:
         number:
           min: 0
-          max: 23
-          unit_of_measurement: hours
-
-    no_motion_minutes:
-      name: Minutos de espera sin movimiento
-      description: Cantidad de minutos para mantener el dispositivo encendido después del último movimiento detectado.
-      default: 2
-      selector:
-        number:
-          min: 0
-          max: 59
-          unit_of_measurement: minutes
-
-    no_motion_seconds:
-      name: Segundos de espera sin movimiento
-      description: Cantidad de segundos para mantener el dispositivo encendido después del último movimiento detectado.
-      default: 0
-      selector:
-        number:
-          min: 0
-          max: 59
+          max: 3600
           unit_of_measurement: seconds
 
     dusk_offset:
@@ -87,9 +67,6 @@ action:
       platform: state
       entity_id: !input motion_entity
       to: "off"
-  - delay:
-      hours: !input no_motion_hours
-      minutes: !input no_motion_minutes
-      seconds: !input no_motion_seconds
+  - delay: !input no_motion_wait
   - service: homeassistant.turn_off
     target: !input target_device
