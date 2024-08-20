@@ -1,6 +1,6 @@
 blueprint:
-  name: Activar dispositivo por movimiento con ajuste al crepúsculo
-  description: Este blueprint enciende un dispositivo (luz, interruptor, etc.) cuando se detecta movimiento, con ajustes relativos al crepúsculo (dusk).
+  name: Activar dispositivo por movimiento con ajuste al atardecer
+  description: Este blueprint enciende un dispositivo (luz, interruptor, etc.) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
   domain: automation
   input:
     motion_entity:
@@ -31,9 +31,9 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 
-    dusk_offset:
+    sunset_offset:
       name: Offset para encender el dispositivo
-      description: Define el offset en minutos relativo al crepúsculo (dusk)
+      description: Define el offset en minutos relativo al atardecer (sunset)
       default: 0
       selector:
         number:
@@ -54,10 +54,9 @@ trigger:
   to: "on"
 
 condition:
-  - condition: template
-    value_template: >
-      {% set dusk_time = as_timestamp(state_attr('sun.sun', 'next_dusk')) + (60 * !input dusk_offset) %}
-      {{ now().timestamp() >= dusk_time }}
+  - condition: sun
+    after: sunset
+    after_offset: "{{ !input sunset_offset | int * 60 }}"
   - condition: time
     before: !input end_time
 
