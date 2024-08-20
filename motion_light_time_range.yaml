@@ -23,7 +23,7 @@ blueprint:
               - input_boolean
 
     offset_minutes:
-      name: Minutos de ajuste respecto al crepúsculo
+      name: Minutos de ajuste respecto al crepúsculo (dusk)
       description: Ajuste de minutos antes (negativo) o después (positivo) del crepúsculo para determinar la hora de inicio
       selector:
         number:
@@ -70,9 +70,9 @@ trigger:
     to: 'on'
 
 condition:
-  - condition: sun
-    after_offset: !input offset_minutes
-    after: dusk
+  - condition: template
+    value_template: >
+      {{ (as_timestamp(state_attr('sun.sun', 'next_dusk')) + (60 * !input offset_minutes)) | timestamp_custom('%H:%M', True) <= now().strftime('%H:%M') }}
   - condition: time
     before: !input end_time
 
