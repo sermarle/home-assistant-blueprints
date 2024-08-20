@@ -73,7 +73,8 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: "{{ states('input_number.offset_minutes') | int }}"
+    after_offset: >
+      {{ '%02d:%02d:00' % ( (!input offset_minutes) // 60, (!input offset_minutes) % 60 ) }}
   - condition: time
     before: !input end_time
 
