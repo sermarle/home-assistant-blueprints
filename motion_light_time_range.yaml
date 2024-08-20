@@ -63,10 +63,6 @@ condition:
 action:
   - service: homeassistant.turn_on
     target: !input target_device
-  - wait_for_trigger:
-      platform: state
-      entity_id: !input motion_entity
-      to: "off"
   - delay: !input no_motion_wait
   - service: homeassistant.turn_off
     target: !input target_device
