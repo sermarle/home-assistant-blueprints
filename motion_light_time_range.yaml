@@ -19,6 +19,7 @@ blueprint:
             domain:
               - light
               - switch
+              - boolean
 
     no_motion_wait:
       name: Tiempo de espera sin movimiento
