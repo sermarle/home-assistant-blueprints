@@ -62,9 +62,7 @@ condition:
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
-  - condition: state
-    entity_id: !input target_device
-    state: "off"
+
 
 action:
   - service: homeassistant.turn_on
