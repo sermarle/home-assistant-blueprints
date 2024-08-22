@@ -1,3 +1,4 @@
+blueprint:
 name: Activar dispositivo por movimiento con ajuste
 description: Este blueprint enciende un dispositivo (luz, interruptor, booleano) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset)
 domain: automation
