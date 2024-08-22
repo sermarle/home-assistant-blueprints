@@ -68,7 +68,7 @@ condition:
 action:
   - service: persistent_notification.create
     data:
-      message: "La automatización se ejecutó con los dispositivos: {{ expand(target_device) | map(attribute='entity_id') | list | join(', ') }}."
+      message: "La automatización se ejecutó con los dispositivos: {{ expand('!input target_device') | map(attribute='entity_id') | list | join(', ') }}."
       title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
