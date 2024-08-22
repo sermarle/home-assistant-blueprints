@@ -51,15 +51,16 @@ condition:
   - condition: time
     before: !input end_time
   - condition: template
-    value_template: >
-      {% set devices = expand(target_device) %}
-      {% set all_off = true %}
-      {% for device in devices %}
-        {% if is_state(device.entity_id, 'on') %}
-          {% set all_off = false %}
-        {% endif %}
-      {% endfor %}
-      {{ all_off }}
+      value_template: >
+        {% set target = states | selectattr('entity_id', 'in', expand('!input target_device').entity_id) | list %}
+        {% for entity in target %}
+          {% if is_state(entity.entity_id, 'on') %}
+            {{ false }}
+            {% break %}
+          {% endif %}
+        {% else %}
+          {{ true }}
+        {% endfor %}
 action:
   - service: homeassistant.turn_on
     target: !input target_device
