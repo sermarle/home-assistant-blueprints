@@ -52,18 +52,15 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% set target = states | selectattr('entity_id', 'in', expand('!input target_device').entity_id) | list %}
-      {% if target %}
-        {% for entity in target %}
-          {% if is_state(entity.id, 'off') %}
-            {{ true }}
-          {% else %}
-            {{ false }}
-          {% endif %}
-        {% endfor %}
-      {% else %}
-        {{ true }}  # Si no se encuentra el target, asumimos que está apagado
-      {% endif %}
+      {% set target_devices = expand('!input target_device').entity_id %}
+      {% set all_off = true %}
+      {% for device in target_devices %}
+        {% if states(device).state != 'off' %}
+          {% set all_off = false %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+      {{ all_off }}
 action:
   - service: homeassistant.turn_on
     target: !input target_device
