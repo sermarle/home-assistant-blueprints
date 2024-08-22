@@ -50,15 +50,21 @@ condition:
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
-  - condition: template
-    value_template: >
-      {% set all_off = true %}
-      {% for entity in expand(target) %}
-        {% if states(entity.entity_id) != 'off' %}
-          {% set all_off = false %}
+- condition: template
+  value_template: >
+    {% set devices = device_entities(target_device) %}
+    {% if devices | count > 0 %}
+      {% for entity_id in devices %}
+        {% if is_state(entity_id, 'on') %}
+          {{ false }}
+          {% break %}
         {% endif %}
+      {% else %}
+        {{ true }}
       {% endfor %}
-      {{ all_off }}
+    {% else %}
+      {{ false }}
+    {% endif %}
 action:
   - service: homeassistant.turn_on
     target: !input target_device
