@@ -52,14 +52,11 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% set domains = ['light', 'switch', 'input_boolean'] %}
       {% set all_off = true %}
-      {% for domain in domains %}
-        {% for entity in states[domain] %}
-          {% if entity.state != 'off' %}
-            {% set all_off = false %}
-          {% endif %}
-        {% endfor %}
+      {% for entity_id in target_device.entity_id %}
+        {% if states(entity_id) != 'off' %}
+          {% set all_off = false %}
+        {% endif %}
       {% endfor %}
       {{ all_off }}
 action:
