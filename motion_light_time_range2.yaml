@@ -53,8 +53,8 @@ condition:
   - condition: template
     value_template: >
       {% set all_off = true %}
-      {% for entity_id in target_device.entity_id %}
-        {% if states(entity_id) != 'off' %}
+      {% for entity_id in expand(target_device) %}
+        {% if states(entity_id.entity_id) != 'off' %}
           {% set all_off = false %}
         {% endif %}
       {% endfor %}
