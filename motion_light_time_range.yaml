@@ -63,6 +63,10 @@ condition:
       {% endfor %}
       {{ all_off }}
 action:
+  - service: persistent_notification.create
+    data:
+      message: "La automatización se ejecutó con los dispositivos evaluados."
+      title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
   - delay:
