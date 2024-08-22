@@ -28,8 +28,9 @@ blueprint:
     end_time:
       name: Hora de fin
       description: Hora en la que dejará de ejecutarse la automatización
+      default: "23:00:00"
       selector:
-        time:
+        time: {}
     no_motion_wait:
       name: Tiempo de espera sin movimiento
       description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
@@ -52,13 +53,12 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% set target_devices = expand('!input target_device') %}
-      {% if target_devices | length == 0 %}
+      {% if !input target_device.entity_id | length == 0 %}
         {{ false }}
       {% else %}
         {% set all_off = true %}
-        {% for device in target_devices %}
-          {% if states(device.entity_id) != 'off' %}
+        {% for entity_id in !input target_device.entity_id %}
+          {% if states(entity_id) != 'off' %}
             {% set all_off = false %}
             {% break %}
           {% endif %}
@@ -68,7 +68,7 @@ condition:
 action:
   - service: persistent_notification.create
     data:
-      message: "La automatización se ejecutó con los dispositivos: {{ expand('!input target_device') | map(attribute='entity_id') | list | join(', ') }}."
+      message: "La automatización se ejecutó con los dispositivos: {{ !input target_device.entity_id | list | join(', ') }}."
       title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
@@ -76,4 +76,3 @@ action:
       minutes: !input no_motion_wait
   - service: homeassistant.turn_off
     target: !input target_device
-
