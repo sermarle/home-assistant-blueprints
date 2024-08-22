@@ -62,8 +62,10 @@ condition:
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
-  - condition: template
-    value_template: "{{ is_state(target_device.entity_id, 'off') }}"
+- condition: template
+  value_template: >
+    {% set target = expand(target_device) %}
+    {{ target.entity_id | select('is_state', 'off') | list | count == target.entity_id | count }}
 
 action:
   - service: homeassistant.turn_on
