@@ -53,16 +53,21 @@ condition:
   - condition: template
     value_template: >
       {% set target_devices = expand('!input target_device') %}
-      {{ 'Dispositivos evaluados: ' ~ target_devices | log }}
-      {% set all_off = true %}
-      {% for device in target_devices %}
-        {{ 'Evaluando dispositivo: ' ~ device.entity_id ~ ' con estado: ' ~ states(device.entity_id) | log }}
-        {% if states(device.entity_id) != 'off' %}
-          {% set all_off = false %}
-          {% break %}
-        {% endif %}
-      {% endfor %}
-      {{ all_off }}
+      {% if target_devices | length == 0 %}
+        {{ 'Error: No se seleccionaron dispositivos en target_device' | log }}
+        {{ false }}
+      {% else %}
+        {{ 'Dispositivos evaluados: ' ~ target_devices | map(attribute='entity_id') | list | join(', ') | log }}
+        {% set all_off = true %}
+        {% for device in target_devices %}
+          {{ 'Evaluando dispositivo: ' ~ device.entity_id ~ ' con estado: ' ~ states(device.entity_id) | log }}
+          {% if states(device.entity_id) != 'off' %}
+            {% set all_off = false %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {{ all_off }}
+      {% endif %}
 action:
   - service: homeassistant.turn_on
     target: !input target_device
