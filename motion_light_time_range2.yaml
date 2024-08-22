@@ -50,7 +50,7 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: "{{ (input.sunset_offset | int) * 60 }}"
+    after_offset: {{ (input.sunset_offset |int * 60)|timestamp_custom('%-H hours and %-M minutes', false) }}
   - condition: time
     before: !input end_time
   - condition: template
