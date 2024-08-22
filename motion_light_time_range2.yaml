@@ -1,5 +1,5 @@
 blueprint:
-  name: Activar dispositivo por movimiento con ajuste.
+  name: Activar dispositivo por movimiento con ajuste
   description: Este blueprint enciende un dispositivo (luz, interruptor, booleano) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
   domain: automation
   input:
@@ -9,7 +9,6 @@ blueprint:
         entity:
           domain: binary_sensor
           device_class: motion
-
     target_device:
       name: Dispositivo para activar
       description: Selecciona el dispositivo (luz, interruptor, etc.) que se activará cuando se detecte movimiento
@@ -20,9 +19,6 @@ blueprint:
               - light
               - switch
               - input_boolean
-
-
-
     sunset_offset:
       name: Offset para encender el dispositivo
       description: Define el offset en minutos relativo al atardecer (sunset)
@@ -32,14 +28,11 @@ blueprint:
           min: -120
           max: 120
           unit_of_measurement: minutes
-
     end_time:
       name: Hora de fin
       description: Hora en la que dejará de ejecutarse la automatización
       selector:
         time:
-
-        
     no_motion_wait:
       name: Tiempo de espera sin movimiento
       description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
@@ -49,24 +42,29 @@ blueprint:
           min: 0
           max: 120
           unit_of_measurement: minutes
-
 trigger:
   platform: state
   entity_id: !input motion_entity
   from: "off"
   to: "on"
-
 condition:
   - condition: sun
     after: sunset
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
-- condition: template
-  value_template: >
-    {% set device = states[target_device.entity_id] %}
-    {{ device.state == 'off' }}
-
+  - condition: template
+    value_template: >
+      {% set domains = ['light', 'switch', 'input_boolean'] %}
+      {% set all_off = true %}
+      {% for domain in domains %}
+        {% for entity in states[domain] %}
+          {% if entity.state != 'off' %}
+            {% set all_off = false %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+      {{ all_off }}
 action:
   - service: homeassistant.turn_on
     target: !input target_device
