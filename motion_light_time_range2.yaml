@@ -64,8 +64,8 @@ condition:
     before: !input end_time
 - condition: template
   value_template: >
-    {% set target = expand(target_device) %}
-    {{ target.entity_id | select('is_state', 'off') | list | count == target.entity_id | count }}
+    {% set device = states[target_device.entity_id] %}
+    {{ device.state == 'off' }}
 
 action:
   - service: homeassistant.turn_on
