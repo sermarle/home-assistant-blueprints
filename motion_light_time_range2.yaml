@@ -22,12 +22,9 @@ blueprint:
     sunset_offset:
       name: Offset para encender el dispositivo
       description: Define el offset en minutos relativo al atardecer (sunset)
-      default: 0
+      default: "-1:00:00"
       selector:
-        number:
-          min: -120
-          max: 120
-          unit_of_measurement: minutes
+        time: {}
     end_time:
       name: Hora de fin
       description: Hora en la que dejará de ejecutarse la automatización
@@ -50,7 +47,7 @@ trigger:
 condition:
   - condition: sun
     after: sunset
-    after_offset: "{{ (input.sunset_offset |int * 60)|timestamp_custom('%-H hours and %-M minutes', false) }}"
+    after_offset: !input.sunset_offset
   - condition: time
     before: !input end_time
   - condition: template
