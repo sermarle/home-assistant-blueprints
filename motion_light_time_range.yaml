@@ -52,10 +52,11 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% set target_devices = expand('!input target_device') %}
+      {% set target_devices = expand(target_device) %}
+      {{ 'Dispositivos evaluados: ' ~ target_devices | log }}
       {% set all_off = true %}
       {% for device in target_devices %}
-        {{ log('Evaluando dispositivo: ' ~ device.entity_id ~ ' con estado: ' ~ states(device.entity_id)) }}
+        {{ 'Evaluando dispositivo: ' ~ device.entity_id ~ ' con estado: ' ~ states(device.entity_id) | log }}
         {% if states(device.entity_id) != 'off' %}
           {% set all_off = false %}
           {% break %}
@@ -63,13 +64,10 @@ condition:
       {% endfor %}
       {{ all_off }}
 action:
-  - service: persistent_notification.create
-    data:
-      message: "La automatización se ejecutó con los dispositivos evaluados."
-      title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
   - delay:
       minutes: !input no_motion_wait
   - service: homeassistant.turn_off
     target: !input target_device
+
