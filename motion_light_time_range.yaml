@@ -52,7 +52,7 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% set target_devices = expand(!input target_device) %}
+      {% set target_devices = expand('!input target_device') %}
       {{ 'Dispositivos evaluados: ' ~ target_devices | log }}
       {% set all_off = true %}
       {% for device in target_devices %}
