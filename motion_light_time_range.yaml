@@ -41,8 +41,7 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  sensors: >
-    {{ expand('!input target_device') }}
+  sensors: !input target_device')
 trigger:
   platform: state
   entity_id: !input motion_entity
