@@ -52,10 +52,11 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% set target_devices = expand('!input target_device').entity_id %}
+      {% set target_devices = expand(target_device) %}
       {% set all_off = true %}
       {% for device in target_devices %}
-        {% if states(device).state != 'off' %}
+        {{ log('Evaluando dispositivo: ' ~ device.entity_id ~ ' con estado: ' ~ states(device.entity_id)) }}
+        {% if states(device.entity_id) != 'off' %}
           {% set all_off = false %}
           {% break %}
         {% endif %}
