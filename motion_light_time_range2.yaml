@@ -24,10 +24,7 @@ blueprint:
       description: Define el offset en minutos relativo al atardecer (sunset)
       default: "-1:00:00"
       selector:
-        number:
-          min: -120
-          max: 120
-          unit_of_measurement: minutes
+        time: {}
     end_time:
       name: Hora de fin
       description: Hora en la que dejará de ejecutarse la automatización
