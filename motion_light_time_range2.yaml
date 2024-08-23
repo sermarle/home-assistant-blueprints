@@ -1,6 +1,6 @@
 blueprint:
-  name: Prueba Directa de Entidades Corregida
-  description: Prueba directa para verificar la lista de entidades seleccionadas.
+  name: Prueba Directa de `expand`
+  description: Prueba para verificar si `expand` funciona con entidades seleccionadas.
   domain: automation
   input:
     target_device:
@@ -20,8 +20,5 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Prueba directa de entidades corregida.
-        Entidades seleccionadas: 
-        {% for entity_id in expand('!input target_device') %}
-          {{ entity_id.entity_id }};
-        {% endfor %}
+        Prueba de `expand`.
+        Resultado de `expand`: {{ expand('!input target_device') }}.
