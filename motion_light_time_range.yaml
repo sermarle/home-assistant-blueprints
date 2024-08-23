@@ -41,7 +41,15 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  sensors: !input target_device
+  sensors: >
+    {% set result = namespace(sensors=[]) %}
+    {% for entity_id in !input target_device.entity_id %}
+      {% set state = states(entity_id) %}
+      {% if state == 'off' %}
+        {% set result.sensors = result.sensors + [entity_id] %}
+      {% endif %}
+    {% endfor %}
+    {{ result.sensors }}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -55,22 +63,11 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {% if sensors | length == 0 %}
-        {{ false }}
-      {% else %}
-        {% set all_off = true %}
-        {% for sensor in sensors %}
-          {% if states(sensor.entity_id) != 'off' %}
-            {% set all_off = false %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-        {{ all_off }}
-      {% endif %}
+      {{ sensors | length == !input target_device.entity_id | length }}
 action:
   - service: persistent_notification.create
     data:
-      message: "La automatización se ejecutó con los dispositivos: {{ sensors | map(attribute='entity_id') | list | join(', ') }}."
+      message: "La automatización se ejecutó con los dispositivos apagados: {{ sensors | join(', ') }}."
       title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
