@@ -16,19 +16,16 @@ blueprint:
 
 trigger:
   - platform: state
-    entity_id: !input target_device
-
-variables:
-  selected_devices: !input target_device.entity_id
-  changed_device: "{{ trigger.entity_id }}"
-  device_names: >
-    {% set names = [] %}
-    {% for device in selected_devices %}
-      {% set names = names + [states[device].name] %}
-    {% endfor %}
-    {{ names | join(', ') }}
+    entity_id: !input target_device.entity_id
 
 action:
+  - variables:
+      device_names: >
+        {% set names = [] %}
+        {% for device in expand(target_device) %}
+          {% set names = names + [device.name] %}
+        {% endfor %}
+        {{ names | join(', ') }}
   - service: persistent_notification.create
     data:
       title: "Dispositivos Seleccionados"
@@ -36,5 +33,3 @@ action:
         Los siguientes dispositivos fueron seleccionados:
         {{ device_names }}
       notification_id: 'selected_devices_notification'
-
-
