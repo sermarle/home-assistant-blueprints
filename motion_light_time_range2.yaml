@@ -21,7 +21,7 @@ blueprint:
               - input_boolean
     sunset_offset:
       name: Offset para encender el dispositivo
-      description: Define el offset en minutos relativo al atardecer (sunset).
+      description: Define el offset en tiempo relativo al atardecer (sunset).
       default: "-12:00:00"
       selector:
         time: {}
@@ -41,15 +41,22 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
+  target_entities: !input target_device.entity_id
   device_states: >
     {% set states_list = [] %}
-    {% for entity_id in !input target_device.entity_id %}
+    {% for entity_id in target_entities %}
       {% set state = states(entity_id) %}
       {% set states_list = states_list + [entity_id + ': ' + state] %}
     {% endfor %}
     {{ states_list | join(', ') }}
   all_off: >
-    {{ states_list | selectattr('split(": ")[1]', 'eq', 'off') | list | count == states_list | count }}
+    {% set all_off = true %}
+    {% for entity_id in target_entities %}
+      {% if states(entity_id) != 'off' %}
+        {% set all_off = false %}
+      {% endif %}
+    {% endfor %}
+    {{ all_off }}
 trigger:
   platform: state
   entity_id: !input motion_entity
