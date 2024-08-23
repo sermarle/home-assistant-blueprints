@@ -43,14 +43,19 @@ blueprint:
 variables:
   target_entities: >
     {{ expand('!input target_device') | map(attribute='entity_id') | list }}
-  sensors: >
-    {% set result = namespace(sensors=[]) %}
+  all_off: >
+    {% set all_off = true %}
+    {% set device_states = [] %}
     {% for entity_id in target_entities %}
-      {% if states(entity_id) == 'off' %}
-        {% set result.sensors = result.sensors + [entity_id] %}
+      {% set state = states(entity_id) %}
+      {% set device_states = device_states + [entity_id ~ ': ' ~ state] %}
+      {% if state != 'off' %}
+        {% set all_off = false %}
       {% endif %}
     {% endfor %}
-    {{ result.sensors }}
+    {{ all_off }}
+  device_states: >
+    {{ device_states | join(', ') }}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -63,12 +68,13 @@ condition:
   - condition: time
     before: !input end_time
   - condition: template
-    value_template: >
-      {{ sensors | length == target_entities | length }}
+    value_template: "{{ all_off }}"
 action:
   - service: persistent_notification.create
     data:
-      message: "La automatización se ejecutó con los dispositivos apagados: {{ sensors | join(', ') }}."
+      message: >
+        La automatización se ejecutó porque todas las luces estaban apagadas.
+        Dispositivos y estados evaluados: {{ device_states }}.
       title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
