@@ -67,14 +67,13 @@ condition:
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
-  - condition: template
-    value_template: "{{ all_off }}"
+
 action:
   - service: persistent_notification.create
     data:
       message: >
         La automatización se ejecutó porque todas las luces estaban apagadas.
-        Dispositivos y estados evaluados: {{ device_states }}.
+        Dispositivos y estados evaluados: {{ device_states }}. {{ target_entities }} . {{ all_off }}
       title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
