@@ -1,6 +1,6 @@
 blueprint:
-  name: Prueba Directa con `entity_id`
-  description: Prueba directa usando `entity_id`.
+  name: Prueba Directa con `entity_id` Corregida
+  description: Prueba directa usando `entity_id` sin mostrar el estado.
   domain: automation
   input:
     target_entity:
@@ -19,6 +19,7 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Prueba con `entity_id`.
-        Entidad seleccionada: {{ states('!input target_entity') }}.
+        Prueba con `entity_id` corregida.
+        ID de la entidad seleccionada: !input target_entity.
+
 
