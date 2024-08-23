@@ -1,6 +1,6 @@
 blueprint:
-  name: Notificación de dispositivos seleccionados vía Telegram
-  description: Selecciona múltiples dispositivos de tipo luz o switch y envía un mensaje con los dispositivos seleccionados vía Telegram.
+  name: Notificación de dispositivos seleccionados
+  description: Selecciona múltiples dispositivos de tipo luz o switch y muestra una notificación persistente con los dispositivos seleccionados.
   domain: automation
   input:
     devices:
@@ -10,20 +10,17 @@ blueprint:
         target:
           entity:
             domain: light, switch
-    telegram_chat_id:
-      name: ID de chat de Telegram
-      description: El ID del chat de Telegram donde se enviará el mensaje.
-      selector:
-        text:
   trigger:
     platform: state
     entity_id: !input devices
   action:
-    - service: telegram_bot.send_message
+    - service: persistent_notification.create
       data:
-        chat_id: !input telegram_chat_id
+        title: 'Dispositivos Seleccionados'
         message: >
           Has seleccionado los siguientes dispositivos:
           {% for entity_id in target.entities %}
             - {{ states[entity_id].name }}
           {% endfor %}
+        notification_id: 'selected_devices_notification'
+
