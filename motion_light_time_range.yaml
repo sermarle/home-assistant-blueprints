@@ -41,7 +41,7 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  target_entities: !input target_device
+  target_entities: "{{ expand('!input target_device') | map(attribute='entity_id') | list }}"
   device_states: >
     {% set states_list = [] %}
     {% for entity_id in target_entities %}
