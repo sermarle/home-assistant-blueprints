@@ -1,6 +1,6 @@
 blueprint:
-  name: Prueba de Entidades
-  description: Prueba la expansión de entidades seleccionadas.
+  name: Prueba Directa de Entidades
+  description: Prueba directa para verificar la lista de entidades seleccionadas.
   domain: automation
   input:
     target_device:
@@ -20,5 +20,5 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Prueba de entidades.
-        Entidades expandidas: {{ expand('!input target_device') | map(attribute='entity_id') | join(', ') }}.
+        Prueba directa de entidades.
+        Entidades seleccionadas: {{ '!input target_device.entity_id' }}.
