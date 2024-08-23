@@ -22,7 +22,7 @@ blueprint:
     sunset_offset:
       name: Offset para encender el dispositivo
       description: Define el offset en minutos relativo al atardecer (sunset)
-      default: "-1:00:00"
+      default: "-12:00:00"
       selector:
         time: {}
     end_time:
@@ -44,19 +44,9 @@ variables:
   target_entities: >
     {{ expand('!input target_device') | map(attribute='entity_id') | list }}
   all_off: >
-    {% set all_off = true %}
-    {% set device_states = [] %}
-    {% for entity_id in target_entities %}
-      {% set state = states(entity_id) %}
-      {% set device_states = device_states + [entity_id ~ ': ' ~ state] %}
-      {% if state != 'off' %}
-        {% set all_off = false %}
-      {% endif %}
-    {% endfor %}
-    {{ device_states | join(', ') }}
-    {{ all_off }}
+    {{ expand(target_entities) | selectattr('state', 'eq', 'on') | list | count == 0 }}
   device_states: >
-    {{ device_states | join(', ') }}
+    {{ expand(target_entities) | map(attribute='entity_id') | join(', ') }}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -69,7 +59,7 @@ condition:
   - condition: time
     before: !input end_time
   - condition: template
-    value_template: "{{ all_off == true }}"
+    value_template: "{{ all_off }}"
 action:
   - service: persistent_notification.create
     data:
