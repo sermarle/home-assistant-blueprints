@@ -1,18 +1,17 @@
 blueprint:
-  name: Prueba Directa de `expand`
-  description: Prueba para verificar si `expand` funciona con entidades seleccionadas.
+  name: Prueba Directa con `entity_id`
+  description: Prueba directa usando `entity_id`.
   domain: automation
   input:
-    target_device:
-      name: Dispositivo para activar
-      description: Selecciona el dispositivo (luz, interruptor, etc.) que se evaluará.
+    target_entity:
+      name: Entidad para activar
+      description: Selecciona una entidad específica (luz, interruptor, etc.).
       selector:
-        target:
-          entity:
-            domain:
-              - light
-              - switch
-              - input_boolean
+        entity:
+          domain:
+            - light
+            - switch
+            - input_boolean
 trigger:
   platform: homeassistant
   event: start
@@ -20,5 +19,6 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Prueba de `expand`.
-        Resultado de `expand`: {{ expand('!input target_device') }}.
+        Prueba con `entity_id`.
+        Entidad seleccionada: {{ states('!input target_entity') }}.
+
