@@ -45,10 +45,24 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  light_ids: !input light_entities
-  switch_ids: !input switch_entities
-  open_lights: "{{ expand(light_ids) | selectattr('state', 'eq', 'off') | map(attribute='entity_id') | list }}"
-  open_switches: "{{ expand(switch_ids) | selectattr('state', 'eq', 'off') | map(attribute='entity_id') | list }}"
+  light_ids: !input light_entities.entity_id
+  switch_ids: !input switch_entities.entity_id
+  lights_to_turn_on: >
+    {% set lights = [] %}
+    {% for light in light_ids %}
+      {% if states(light) == 'off' %}
+        {% set lights = lights + [light] %}
+      {% endif %}
+    {% endfor %}
+    {{ lights }}
+  switches_to_turn_on: >
+    {% set switches = [] %}
+    {% for switch in switch_ids %}
+      {% if states(switch) == 'off' %}
+        {% set switches = switches + [switch] %}
+      {% endif %}
+    {% endfor %}
+    {{ switches }}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -64,19 +78,10 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Luces seleccionadas para encender: {{ open_lights }}.
-        Enchufes seleccionados para encender: {{ open_switches }}.
+        Luces seleccionadas para encender: {{ lights_to_turn_on }}.
+        Enchufes seleccionados para encender: {{ switches_to_turn_on }}.
   - service: light.turn_on
     target:
-      entity_id: "{{ open_lights }}"
+      entity_id: "{{ lights_to_turn_on }}"
   - service: switch.turn_on
-    target:
-      entity_id: "{{ open_switches }}"
-  - delay:
-      minutes: !input no_motion_wait
-  - service: light.turn_off
-    target:
-      entity_id: "{{ open_lights }}"
-  - service: switch.turn_off
-    target:
-      entity_id: "{{ open_switches }}"
+   
