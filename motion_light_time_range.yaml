@@ -24,7 +24,10 @@ blueprint:
       description: Define el offset en minutos relativo al atardecer (sunset)
       default: "-1:00:00"
       selector:
-        time: {}
+        number:
+          min: -120
+          max: 120
+          unit_of_measurement: minutes
     end_time:
       name: Hora de fin
       description: Hora en la que dejará de ejecutarse la automatización
@@ -41,12 +44,12 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  target_devices: !input target_device.entity_id
+  target_entities: >
+    {{ expand('!input target_device') | map(attribute='entity_id') | list }}
   sensors: >
     {% set result = namespace(sensors=[]) %}
-    {% for entity_id in target_devices %}
-      {% set state = states(entity_id) %}
-      {% if state == 'off' %}
+    {% for entity_id in target_entities %}
+      {% if states(entity_id) == 'off' %}
         {% set result.sensors = result.sensors + [entity_id] %}
       {% endif %}
     {% endfor %}
@@ -64,7 +67,7 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {{ sensors | length == target_devices | length }}
+      {{ sensors | length == target_entities | length }}
 action:
   - service: persistent_notification.create
     data:
