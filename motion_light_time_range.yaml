@@ -1,6 +1,6 @@
 blueprint:
   name: Activar dispositivo por movimiento con ajuste
-  description: Este blueprint enciende un dispositivo (luz, interruptor, booleano) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset)
+  description: Este blueprint enciende un dispositivo (luz, interruptor, booleano) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
   domain: automation
   input:
     motion_entity:
@@ -11,7 +11,7 @@ blueprint:
           device_class: motion
     target_device:
       name: Dispositivo para activar
-      description: Selecciona el dispositivo (luz, interruptor, etc.) que se activará cuando se detecte movimiento
+      description: Selecciona el dispositivo (luz, interruptor, etc.) que se activará cuando se detecte movimiento.
       selector:
         target:
           entity:
@@ -21,18 +21,18 @@ blueprint:
               - input_boolean
     sunset_offset:
       name: Offset para encender el dispositivo
-      description: Define el offset en minutos relativo al atardecer (sunset)
-      default: "-1:00:00"
+      description: Define el offset en minutos relativo al atardecer (sunset).
+      default: "-12:00:00"
       selector:
         time: {}
     end_time:
       name: Hora de fin
-      description: Hora en la que dejará de ejecutarse la automatización
+      description: Hora en la que dejará de ejecutarse la automatización.
       default: "23:00:00"
       selector:
         time: {}
     no_motion_wait:
-      name: Tiempo de espera sin movimiento
+      name: Tiempo de espera sin movimiento.
       description: Tiempo en minutos para mantener el dispositivo encendido después del último movimiento detectado.
       default: 2
       selector:
@@ -41,21 +41,15 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  target_entities: >
-    {{ expand('!input target_device') | map(attribute='entity_id') | list }}
   device_states: >
-    {% set device_states = namespace(list=[]) %}
-    {% for entity_id in target_entities %}
+    {% set states_list = [] %}
+    {% for entity_id in !input target_device.entity_id %}
       {% set state = states(entity_id) %}
-      {% set device_states.list = device_states.list + [entity_id ~ ': ' ~ state] %}
+      {% set states_list = states_list + [entity_id + ': ' + state] %}
     {% endfor %}
-    {{ device_states.list | join(', ') }}
+    {{ states_list | join(', ') }}
   all_off: >
-    {% if target_entities | length == 0 %}
-      false
-    {% else %}
-      {{ expand(target_entities) | selectattr('state', 'eq', 'on') | list | count == 0 }}
-    {% endif %}
+    {{ states_list | selectattr('split(": ")[1]', 'eq', 'off') | list | count == states_list | count }}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -67,13 +61,14 @@ condition:
     after_offset: !input sunset_offset
   - condition: time
     before: !input end_time
-
+  - condition: template
+    value_template: "{{ all_off }}"
 action:
   - service: persistent_notification.create
     data:
       message: >
         La automatización se ejecutó porque todas las luces estaban apagadas.
-        Dispositivos y estados evaluados: {{ !input target_device }}.
+        Dispositivos y estados evaluados: {{ device_states }}.
       title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
