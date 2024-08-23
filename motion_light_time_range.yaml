@@ -1,22 +1,25 @@
 blueprint:
   name: Notificación de dispositivos seleccionados
-  description: Selecciona múltiples dispositivos de tipo luz o switch y muestra una notificación persistente con los dispositivos seleccionados.
+  description: Selecciona múltiples dispositivos (luz, interruptor, input_boolean) y muestra una notificación persistente con los dispositivos seleccionados.
   domain: automation
   input:
-    devices:
-      name: Dispositivos (luces o switches)
-      description: Selecciona los dispositivos de tipo luz o switch.
+    target_device:
+      name: Dispositivos para notificación
+      description: Selecciona los dispositivos (luces, interruptores, input_booleans) que se incluirán en la notificación.
       selector:
-        entity:
-          domain: light, switch
-          multiple: true
+        target:
+          entity:
+            domain:
+              - light
+              - switch
+              - input_boolean
 
 trigger:
   - platform: state
-    entity_id: !input devices
+    entity_id: !input target_device
 
 variables:
-  selected_devices: !input devices
+  selected_devices: !input target_device.entity_id
   changed_device: "{{ trigger.entity_id }}"
   device_names: >
     {% set names = [] %}
@@ -33,4 +36,5 @@ action:
         Los siguientes dispositivos fueron seleccionados:
         {{ device_names }}
       notification_id: 'selected_devices_notification'
+
 
