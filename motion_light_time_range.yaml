@@ -7,22 +7,30 @@ blueprint:
       name: Dispositivos (luces o switches)
       description: Selecciona los dispositivos de tipo luz o switch.
       selector:
-        target:
-          entity:
-            domain: light, switch
+        entity:
+          domain: light, switch
+          multiple: true
 
 trigger:
   - platform: state
     entity_id: !input devices
 
+variables:
+  selected_devices: !input devices
+  changed_device: "{{ trigger.entity_id }}"
+  device_names: >
+    {% set names = [] %}
+    {% for device in selected_devices %}
+      {% set names = names + [states[device].name] %}
+    {% endfor %}
+    {{ names | join(', ') }}
+
 action:
   - service: persistent_notification.create
     data:
-      title: 'Dispositivos Seleccionados'
+      title: "Dispositivos Seleccionados"
       message: >
-        Has seleccionado los siguientes dispositivos:
-        {% for entity_id in trigger.entity_id %}
-          - {{ states[entity_id].name }}
-        {% endfor %}
+        Los siguientes dispositivos fueron seleccionados:
+        {{ device_names }}
       notification_id: 'selected_devices_notification'
 
