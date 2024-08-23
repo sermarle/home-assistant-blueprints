@@ -53,6 +53,7 @@ variables:
         {% set all_off = false %}
       {% endif %}
     {% endfor %}
+    {{ device_states | join(', ') }}
     {{ all_off }}
   device_states: >
     {{ device_states | join(', ') }}
@@ -68,7 +69,7 @@ condition:
   - condition: time
     before: !input end_time
   - condition: template
-    value_template: "{{ all_off }}"
+    value_template: "{{ all_off == true }}"
 action:
   - service: persistent_notification.create
     data:
