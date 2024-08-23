@@ -1,0 +1,24 @@
+blueprint:
+  name: Prueba de Entidades
+  description: Prueba la expansión de entidades seleccionadas.
+  domain: automation
+  input:
+    target_device:
+      name: Dispositivo para activar
+      description: Selecciona el dispositivo (luz, interruptor, etc.) que se evaluará.
+      selector:
+        target:
+          entity:
+            domain:
+              - light
+              - switch
+              - input_boolean
+trigger:
+  platform: homeassistant
+  event: start
+action:
+  - service: persistent_notification.create
+    data:
+      message: >
+        Prueba de entidades.
+        Entidades expandidas: {{ expand('!input target_device') | map(attribute='entity_id') | join(', ') }}.
