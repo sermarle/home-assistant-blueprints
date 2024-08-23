@@ -1,0 +1,29 @@
+blueprint:
+  name: Notificación de dispositivos seleccionados vía Telegram
+  description: Selecciona múltiples dispositivos de tipo luz o switch y envía un mensaje con los dispositivos seleccionados vía Telegram.
+  domain: automation
+  input:
+    devices:
+      name: Dispositivos (luces o switches)
+      description: Selecciona los dispositivos de tipo luz o switch.
+      selector:
+        target:
+          entity:
+            domain: light, switch
+    telegram_chat_id:
+      name: ID de chat de Telegram
+      description: El ID del chat de Telegram donde se enviará el mensaje.
+      selector:
+        text:
+  trigger:
+    platform: state
+    entity_id: !input devices
+  action:
+    - service: telegram_bot.send_message
+      data:
+        chat_id: !input telegram_chat_id
+        message: >
+          Has seleccionado los siguientes dispositivos:
+          {% for entity_id in target.entities %}
+            - {{ states[entity_id].name }}
+          {% endfor %}
