@@ -68,7 +68,6 @@ action:
       message: >
         La automatización se ejecutó porque todas las luces estaban apagadas.
         Dispositivos y estados evaluados: {{ expanded_entities }}.
-    title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
   - delay:
