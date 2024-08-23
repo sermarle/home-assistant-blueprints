@@ -41,7 +41,7 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  target_entities: !input target_device.entity_id
+  target_entities: !input target_device
   device_states: >
     {% set states_list = [] %}
     {% for entity_id in target_entities %}
