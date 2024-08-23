@@ -1,0 +1,40 @@
+blueprint:
+  name: Control de una Luz y un Enchufe con Movimiento
+  description: Enciende una luz y un enchufe cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
+  domain: automation
+  input:
+    motion_entity:
+      name: Sensor de Movimiento
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: motion
+    single_light:
+      name: Luz para activar
+      selector:
+        entity:
+          domain: light
+    single_switch:
+      name: Enchufe para activar
+      selector:
+        entity:
+          domain: switch
+trigger:
+  platform: state
+  entity_id: !input motion_entity
+  from: "off"
+  to: "on"
+action:
+  - service: persistent_notification.create
+    data:
+      message: >
+        Prueba simplificada. Luz seleccionada: {{ states('!input single_light') }}.
+        Enchufe seleccionado: {{ states('!input single_switch') }}.
+  - service: light.turn_on
+    target:
+      entity_id: !input single_light
+  - service: switch.turn_on
+    target:
+      entity_id: !input single_switch
+
+   
