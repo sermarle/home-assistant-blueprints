@@ -41,22 +41,14 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  target_entities: "{{ expand('!input target_device') | map(attribute='entity_id') | list }}"
-  device_states: >
-    {% set states_list = [] %}
-    {% for entity_id in target_entities %}
-      {% set state = states(entity_id) %}
-      {% set states_list = states_list + [entity_id + ': ' + state] %}
+  expanded_entities: >
+    {% set entity_list = [] %}
+    {% for entity_id in expand('!input target_device') %}
+      {% set entity_list = entity_list + [entity_id.entity_id] %}
     {% endfor %}
-    {{ states_list | join(', ') }}
+    {{ entity_list | join(', ') }}
   all_off: >
-    {% set all_off = true %}
-    {% for entity_id in target_entities %}
-      {% if states(entity_id) != 'off' %}
-        {% set all_off = false %}
-      {% endif %}
-    {% endfor %}
-    {{ all_off }}
+    {{ expand(expanded_entities) | selectattr('state', 'eq', 'off') | list | count == expanded_entities | count }}
 trigger:
   platform: state
   entity_id: !input motion_entity
@@ -75,8 +67,8 @@ action:
     data:
       message: >
         La automatización se ejecutó porque todas las luces estaban apagadas.
-        Dispositivos y estados evaluados: {{ device_states }}.
-      title: "Depuración de Automatización"
+        Dispositivos y estados evaluados: {{ expanded_entities }}.
+    title: "Depuración de Automatización"
   - service: homeassistant.turn_on
     target: !input target_device
   - delay:
