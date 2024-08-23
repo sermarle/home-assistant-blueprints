@@ -1,6 +1,6 @@
 blueprint:
-  name: Prueba Directa con `entity_id` Corregida
-  description: Prueba directa usando `entity_id` sin mostrar el estado.
+  name: Prueba Directa con `entity_id` Corregida y Mejorada
+  description: Prueba directa para mostrar el ID de la entidad seleccionada correctamente.
   domain: automation
   input:
     target_entity:
@@ -19,7 +19,7 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Prueba con `entity_id` corregida.
-        ID de la entidad seleccionada: !input target_entity.
-
-
+        Prueba con `entity_id` corregida y mejorada.
+        ID de la entidad seleccionada: {{ target_entity }}.
+variables:
+  target_entity: !input target_entity
