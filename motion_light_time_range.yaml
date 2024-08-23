@@ -1,5 +1,5 @@
 blueprint:
-  name: Prueba Directa de Entidades
+  name: Prueba Directa de Entidades Corregida
   description: Prueba directa para verificar la lista de entidades seleccionadas.
   domain: automation
   input:
@@ -20,5 +20,8 @@ action:
   - service: persistent_notification.create
     data:
       message: >
-        Prueba directa de entidades.
-        Entidades seleccionadas: {{ '!input target_device.entity_id' }}.
+        Prueba directa de entidades corregida.
+        Entidades seleccionadas: 
+        {% for entity_id in expand('!input target_device') %}
+          {{ entity_id.entity_id }};
+        {% endfor %}
