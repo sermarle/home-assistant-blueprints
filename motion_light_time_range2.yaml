@@ -10,17 +10,19 @@ blueprint:
         target:
           entity:
             domain: light, switch
-  trigger:
-    platform: state
+
+trigger:
+  - platform: state
     entity_id: !input devices
-  action:
-    - service: persistent_notification.create
-      data:
-        title: 'Dispositivos Seleccionados'
-        message: >
-          Has seleccionado los siguientes dispositivos:
-          {% for entity_id in target.entities %}
-            - {{ states[entity_id].name }}
-          {% endfor %}
-        notification_id: 'selected_devices_notification'
+
+action:
+  - service: persistent_notification.create
+    data:
+      title: 'Dispositivos Seleccionados'
+      message: >
+        Has seleccionado los siguientes dispositivos:
+        {% for entity_id in trigger.entity_id %}
+          - {{ states[entity_id].name }}
+        {% endfor %}
+      notification_id: 'selected_devices_notification'
 
