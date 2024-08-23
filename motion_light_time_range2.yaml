@@ -1,6 +1,6 @@
 blueprint:
   name: Activar dispositivo por movimiento con ajuste
-  description: Este blueprint enciende un dispositivo (luz, interruptor, booleano) cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
+  description: Este blueprint enciende un dispositivo cuando se detecta movimiento, con ajustes relativos al atardecer (sunset).
   domain: automation
   input:
     motion_entity:
@@ -41,37 +41,15 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
-  expanded_entities: >
-    {% set entities = expand(target_device.entity_id) %}
-    {{ entities | map(attribute='entity_id') | list | join(', ') }}
-  device_states: >
-    {% for entity in expand(target_device.entity_id) %}
-      {{ entity.entity_id }}: {{ entity.state }};
-    {% endfor %}
-  all_off: >
-    {{ expand(target_device.entity_id) | selectattr('state', 'eq', 'off') | list | count == expand(target_device.entity_id) | list | count }}
+  expanded_entities: "{{ expand('!input target_device') | map(attribute='entity_id') | list | join(', ') }}"
 trigger:
   platform: state
   entity_id: !input motion_entity
   from: "off"
   to: "on"
-condition:
-  - condition: sun
-    after: sunset
-    after_offset: !input sunset_offset
-  - condition: time
-    before: !input end_time
-  - condition: template
-    value_template: "{{ all_off }}"
 action:
   - service: persistent_notification.create
     data:
       message: >
-        La automatización se ejecutó porque todas las luces estaban apagadas.
-        Dispositivos y estados evaluados: {{ device_states }}.
-  - service: homeassistant.turn_on
-    target: !input target_device
-  - delay:
-      minutes: !input no_motion_wait
-  - service: homeassistant.turn_off
-    target: !input target_device
+        La automatización se ha disparado.
+        Entidades evaluadas: {{ expanded_entities }}.
