@@ -41,9 +41,10 @@ blueprint:
           max: 120
           unit_of_measurement: minutes
 variables:
+  target_devices: !input target_device.entity_id
   sensors: >
     {% set result = namespace(sensors=[]) %}
-    {% for entity_id in !input target_device.entity_id %}
+    {% for entity_id in target_devices %}
       {% set state = states(entity_id) %}
       {% if state == 'off' %}
         {% set result.sensors = result.sensors + [entity_id] %}
@@ -63,7 +64,7 @@ condition:
     before: !input end_time
   - condition: template
     value_template: >
-      {{ sensors | length == !input target_device.entity_id | length }}
+      {{ sensors | length == target_devices | length }}
 action:
   - service: persistent_notification.create
     data:
